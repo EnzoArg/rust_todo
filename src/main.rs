@@ -18,7 +18,7 @@ fn main() {
     let mut tareas: Vec<Tarea> = Vec::new();
 
     loop {
-        println!("\ningresa un comando('agregar <descripcion>', 'listar','salir')");
+        println!("\ningresa un comando('agregar <descripcion>', 'listar','salir','completar <idTarea>')");
 
         let mut entrada = String::new();
         io::stdin()
@@ -26,39 +26,77 @@ fn main() {
             .expect("Error al leer la entrada");
         let entrada = entrada.trim();
 
-        if entrada == "salir" {
-            println!("\nSaliendo del gestor de tareas");
-            break;
-        } else if entrada.starts_with("agregar ") {
-            let descripcion = entrada[8..].trim();
-            if !descripcion.is_empty() {
-                tareas.push(Tarea {
-                    descripcion: descripcion.to_string(),
-                    completada: false,
-                });
-                println!("\nTarea agregada: {}", descripcion);
-            } else {
-                println!("\nLa descripción de la tarea no puede estar vacía.");
-            }
-        } else if entrada == "listar" {
-            listar_tareas(&tareas);
-        } else if entrada.starts_with("completar ") {
-            let id: usize = match entrada[10..].trim().parse() {
-                Ok(num) => num,
-                Err(_) => {
-                    println!("\nID inválido. Debe ser un número.");
-                    continue;
+        match entrada {
+            "salir" => {
+                    println!("\nSaliendo del gestor de tareas");
+                    break;
+                },
+            "listar" => {
+                    listar_tareas(&tareas);
+                },
+            _ => {
+                if entrada.starts_with("agregar ") {
+                    let descripcion = entrada[8..].trim();
+                    if descripcion.is_empty() {
+                        println!("\nLa descripción no puede estar vacía.");
+                    } else {
+                        tareas.push(Tarea {
+                            descripcion: descripcion.to_string(),
+                            completada: false,
+                        });
+                        println!("\nTarea agregada: {}", descripcion);
+                    }
+                } else if entrada.starts_with("completar ") {
+                    let id_result = entrada[10..].trim().parse::<usize>();
+                    match id_result {
+                        Ok(id) if id > 0 && id <= tareas.len() => {
+                            tareas[id - 1].completada = true;
+                            println!("\nTarea {} marcada como completada.", id);
+                        }
+                        _ => {
+                            println!("\nID inválido o fuera de rango.");
+                        }
+                    }
+                } else {
+                    println!("\nComando no reconocido. Intenta de nuevo.");
                 }
-            };
-            if id > 0 && id <= tareas.len() {
-                tareas[id - 1].completada = true;
-                println!("\nTarea {} marcada como completada.", id);
-            } else {
-                println!("\nID de tarea no válido.");
             }
-        } else {
-            println!("\nComando no reconocido. Intenta de nuevo.");
         }
+        
+        // EJEMPLO DE CLASE
+        // if entrada == "salir" {
+        //     println!("\nSaliendo del gestor de tareas");
+        //     break;
+        // } else if entrada.starts_with("agregar ") {
+        //     let descripcion = entrada[8..].trim();
+        //     if !descripcion.is_empty() {
+        //         tareas.push(Tarea {
+        //             descripcion: descripcion.to_string(),
+        //             completada: false,
+        //         });
+        //         println!("\nTarea agregada: {}", descripcion);
+        //     } else {
+        //         println!("\nLa descripción de la tarea no puede estar vacía.");
+        //     }
+        // } else if entrada == "listar" {
+        //     listar_tareas(&tareas);
+        // } else if entrada.starts_with("completar ") {
+        //     let id: usize = match entrada[10..].trim().parse() {
+        //         Ok(num) => num,
+        //         Err(_) => {
+        //             println!("\nID inválido. Debe ser un número.");
+        //             continue;
+        //         }
+        //     };
+        //     if id > 0 && id <= tareas.len() {
+        //         tareas[id - 1].completada = true;
+        //         println!("\nTarea {} marcada como completada.", id);
+        //     } else {
+        //         println!("\nID de tarea no válido.");
+        //     }
+        // } else {
+        //     println!("\nComando no reconocido. Intenta de nuevo.");
+        // }
 
     }
 }
